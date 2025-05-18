@@ -31,7 +31,7 @@ let description = '国家：' + obj['countryCode'] + ' ' + obj['country'] + '\n'
   + '服务商：' + obj['isp'] + '\n'
   + '经纬度：' + obj['lat'] + ' / ' + obj['lon'] + '\n'
   + '时区：' + obj['timezone'];
-$done({title, subtitle, ip});
+$done({title, subtitle, description});
 
 function country_check(para) {
   return para || city0;
