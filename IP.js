@@ -2,9 +2,7 @@ if ($response.statusCode != 200) {
   $done(null);
 }
 
-const emojis = [
-  ""
-];
+const emojis = [""];
 var city0 = "高谭市";
 var isp0 = "Cross-GFW.org";
 function getRandomInt(max) {
