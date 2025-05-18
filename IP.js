@@ -15,7 +15,7 @@ var asName = obj['as_desc'].match(/^[\w-]+(?:\s[\w-]+)?/)?.[0] || '';
 var cityName = obj['city_name'] || obj['country_name'];
 
 // Get the country flag emoji based on country code
-var countryFlag = flags.get(obj['country_code']) || '🌐';
+var countryFlag = flags.get(obj['country_code']) || '🐒';
 
 var title = countryFlag + ' ' + obj['country_code'] + '⋅' + cityName;
 var subtitle = asName + '｜' + obj['ip'] + '⬩' + 'AS' + obj['asn'];
