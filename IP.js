@@ -21,7 +21,7 @@ const city = city_check(obj['city']);
 // 展示在顶部开关左边（第1行） 格式：国旗 国家名 地区名
 let title = flags.get(obj['countryCode']) + ' ' + append(country, city);
 // 展示在顶部开关左边（第2行） 格式：IP IPS
-let subtitle = obj['query'] + ' ' );
+let subtitle = obj['query'] + ' ' + isp_check(obj['as']);
 // 不展示
 let ip = obj['query'];
 // 长按节点选择“查看节点信息”时的信息
@@ -31,7 +31,7 @@ let description = '国家：' + obj['countryCode'] + ' ' + obj['country'] + '\n'
   + '服务商：' + obj['isp'] + '\n'
   + '经纬度：' + obj['lat'] + ' / ' + obj['lon'] + '\n'
   + '时区：' + obj['timezone'];
-$done({title, subtitle, ip, description});
+$done({title, subtitle, ip});
 
 function country_check(para) {
   return para || city0;
