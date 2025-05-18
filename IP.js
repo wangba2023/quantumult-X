@@ -21,7 +21,7 @@ const city = city_check(obj['city']);
 // 展示在顶部开关左边（第1行） 格式：国旗 国家名 地区名
 let title = flags.get(obj['countryCode']) + ' ' + append(country, city);
 // 展示在顶部开关左边（第2行） 格式：IP IPS
-let subtitle = obj['query'] );
+let subtitle = obj['query'] + ' ' );
 // 不展示
 let ip = obj['query'];
 // 长按节点选择“查看节点信息”时的信息
