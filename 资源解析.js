@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2025-05-16 10:58⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2025-05-19 10:58⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -2702,7 +2702,7 @@ function get_emoji(emojip, sname) {
   }
     str1 = JSON.stringify(Lmoji)
     aa = JSON.parse(str1)
-    bb = JSON.parse(str1)
+    bb = JSON.parse(str1.replace(/🇹🇼/g, " 🇼🇸"))
     var cnt = emojip ==1? aa:bb;
     var flag = 0;
     for (var key in cnt) {
