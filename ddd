@@ -9,7 +9,7 @@ var flags = Map([["AC","🇦🇨"],["AD","🇦🇩"],["AE","🇦🇪"],["AF","�
 var body = $response.body;
 var obj = JSON.parse(body);
 var title =flags.get(obj['countryCode']) +Area_check(obj['country']);
-var subtitle = obj.query + "❣️" + obj.currency + "❣️" + obj.as;  // 修正中文全角括号为正常结束
+var subtitle = obj.query + obj.currency + obj.as;  // 修正中文全角括号为正常结束
 
 // 修正点2：优化字符串拼接
 var ip = obj.query + flags.get(obj.countryCode);
