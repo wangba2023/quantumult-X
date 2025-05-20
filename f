@@ -34,7 +34,7 @@ var body = $response.body;
 var obj = JSON.parse(body);
 
 // 修正点1：subtitle行结尾使用英文右括号
-var title =  + Area_check(obj.country) + "❣️" + obj.timezone;
+var title =  flags.get(obj['countryCode']) + Area_check(obj.country) + "❣️" + obj.timezone;
 var subtitle = obj.query + "❣️" + obj.currency + "❣️" + obj.as;  // 修正中文全角括号为正常结束
 
 // 修正点2：优化字符串拼接
