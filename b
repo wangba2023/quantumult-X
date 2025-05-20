@@ -43,6 +43,8 @@ var flags = new Map([["AC","🇦🇨"],["AD","🇦🇩"],["AE","🇦🇪"],["AF"
 
 var body = $response.body;
 var obj = JSON.parse(body);
+const country = country_check(obj['country']);
+const city = city_check(obj['city']);
 var title =flags.get(obj['countryCode']) +' '+ append(country, city);
 var subtitle = obj['query'] +' '+ obj['currency']+' '+ obj['as']）
 var ip = obj['query']+flags.get(obj['countryCode']);
