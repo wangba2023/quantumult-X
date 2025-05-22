@@ -1,1 +1,2 @@
 const BASE_URL_SPOTIFY = "https://www.spotify.com/";
+"Spotify": "<b>Spotify: </b>检测失败，请重试 ❗️",
