@@ -1,2 +1,27 @@
 const BASE_URL_SPOTIFY = "https://www.spotify.com/";
 "Spotify": "<b>Spotify: </b>检测失败，请重试 ❗️",
+function testSpotify() { 
+  let option = {
+    url: BASE_URL_SPOTIFY,
+    opts: opts1,
+    timeout: 2800,
+    headers: {
+      'User-Agent':
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36'
+    },
+  }
+  $task.fetch(option).then(response => {
+    console.log("Spotify:"+response.statusCode);
+    if (response.statusCode === 200) {
+      result["Spotify"] = "<b>Spotify: </b>支持 🎉";
+    } else if (response.statusCode === 403) {
+      result["Spotify"] = "<b>Spotify: </b>未支持 🚫";
+    } else {
+      result["Spotify"] = "<b>Spotify: </b>检测失败 ❗️";
+    }
+    console.log("Spotify Test Result: " + result["Spotify"]);
+  }, reason => {
+    result["Spotify"] = "<b>Spotify: </b>检测超时 🚦";
+    console.log("Spotify Test Timed Out");
+  });
+}
