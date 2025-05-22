@@ -36,3 +36,7 @@ function testSpotify() {
 })();
 
 
+let content = "------------------------------</br>" + 
+  ([result["YouTube"], result["Netflix"], result["Disney"], result["Dazn"], result["Paramount"], result["Discovery"], result["ChatGPT"], result["Spotify"]]).join("</br></br>");
+
+
