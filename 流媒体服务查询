@@ -25,3 +25,14 @@ function testSpotify() {
     console.log("Spotify Test Timed Out");
   });
 }
+
+(async () => {
+  testYTB();
+  testDazn();
+  testParam();
+  testSpotify(); // Call Spotify test function here
+  let [{ region, status }] = await Promise.all([testDisneyPlus(), testNf(FILM_ID), testDiscovery(), testChatGPT()]);
+  ...
+})();
+
+
