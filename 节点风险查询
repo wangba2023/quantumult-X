@@ -1,10 +1,4 @@
-/***
-[task_local]
-event-interaction https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/server-info-plus.js, tag=节点信息Plus, img-url=info.bubble.system.system  
-@XIAO_KOP
-2023-04-14
-***/
-
+/*** 2025-05-22
 const API_ENDPOINTS = {
   GEOLOCATION: "https://api.ip.sb/geoip",
   FRAUD_CHECK: "https://scamalytics.com/ip/"
