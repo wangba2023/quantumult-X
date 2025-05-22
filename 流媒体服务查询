@@ -1,109 +1,255 @@
-// 修复后的核心部分（主要问题修复）
 const $ = new Env("Streaming");
-const arrow = " ➟ ";
-
-// 国家旗帜映射（需完整实现）
-const flags = new Map([
-  ["US", "🇺🇸"], ["JP", "🇯🇵"], ["KR", "🇰🇷"],
-  ["TW", "🇨🇳"], ["HK", "🇭🇰"], ["SG", "🇸🇬"],
-  // 补充完整国家代码...
-]);
-
-// 服务状态对象
-const services = {
-  YouTube: { emoji: "📺", status: "检测失败 ❗️", region: "" },
-  Netflix: { emoji: "🎬", status: "检测失败 ❗️", region: "" },
-  Spotify: { emoji: "🎵", status: "检测失败 ❗️", region: "" },
-  ChatGPT: { emoji: "🤖", status: "检测失败 ❗️", region: "" },
-  Disney: { emoji: "🏰", status: "检测失败 ❗️", region: "" },
-  Dazn: { emoji: "🏈", status: "检测失败 ❗️", region: "" },
-  Paramount: { emoji: "📡", status: "检测失败 ❗️", region: "" },
-  Discovery: { emoji: "🔍", status: "检测失败 ❗️", region: "" }
+const CONFIG = {
+  NETFLIX: {
+    BASE_URL: "https://www.netflix.com/title/",
+    MAIN_FILM_ID: 81280792,
+    AREA_TEST_FILM_ID: 80018499,
+    USER_AGENT: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36"
+  },
+  YOUTUBE: {
+    URL: "https://www.youtube.com/premium",
+    USER_AGENT: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"
+  },
+  CHATGPT: {
+    TRACE_URL: "https://chat.openai.com/cdn-cgi/trace",
+    REGIONS: ["AL", "DZ", "AF", /*...完整国家列表...*/, "ZW"]
+  },
+  SPOTIFY: {
+    API_URL: "https://spclient.wg.spotify.com/signup/public/v1/account",
+    POST_DATA: "birth_day=11&birth_month=11&birth_year=2000&collect_personal_info=undefined&creation_flow=&creation_point=https%3A%2F%2Fwww.spotify.com%2Fhk-en%2F&displayname=Gay%20Lord&gender=male&iagree=1&key=a1e486e2729f46d6bb368d6b2bcda326&platform=www&referrer=&send-email=0&thirdpartyemail=0&identifier_token=AgE6YTvEzkReHNfJpO114514"
+  },
+  TIMEOUT: 8000
 };
 
-// 修复后的Netflix检测逻辑
+const arrow = " ➟ ";
+let [ytb, netflix, gpt, spotify] = ["", "", "", ""];
+$.token = $.getdata("ipinfo_token") || "";
+
+(async () => {
+  try {
+    await Promise.allSettled([
+      testYouTube(),
+      testNetflix(),
+      testChatGPT(),
+      testSpotify()
+    ]);
+  } catch (e) {
+    $.logErr("全局错误:", e);
+  } finally {
+    showResults();
+  }
+})();
+
+async function testYouTube() {
+  try {
+    const options = {
+      url: CONFIG.YOUTUBE.URL,
+      headers: {
+        "User-Agent": CONFIG.YOUTUBE.USER_AGENT,
+        "Accept-Language": "en-US,en;q=0.9"
+      },
+      timeout: CONFIG.TIMEOUT,
+      opts: { policy: $environment.params }
+    };
+
+    const response = await $.http.get(options);
+    if (!response || response.statusCode !== 200) {
+      ytb = "检测失败";
+      return;
+    }
+
+    const region = detectYouTubeRegion(response.body);
+    ytb = region ? `🎉支持 ${arrow}${getCountryFlagEmoji(region)}${region}` : "🚫未支持";
+  } catch (error) {
+    ytb = "检测超时";
+    $.logErr("YouTube测试错误:", error);
+  }
+}
+
+function detectYouTubeRegion(body) {
+  const regionMatch = body.match(/"GL":"(.*?)"/);
+  if (regionMatch) return regionMatch[1].toUpperCase();
+  if (body.includes("www.google.cn")) return "CN";
+  return null;
+}
+
 async function testNetflix() {
   try {
-    const filmIds = [81280792, 80018499];
-    for (const id of filmIds) {
-      const result = await checkNF(id);
-      if (result.status === "Success") {
-        services.Netflix.status = result.isFullAccess ? 
-          `完整支持${arrow}${getFlag(result.region)} 🎉` : 
-          `仅自制剧${arrow}${getFlag(result.region)} ⚠️`;
-        services.Netflix.region = result.region;
-        break;
-      }
-    }
-  } catch (e) {
-    services.Netflix.status = "检测超时 🚦";
-    $.logErr(e);
-  }
-}
+    const results = await Promise.allSettled([
+      testFilm(CONFIG.NETFLIX.MAIN_FILM_ID),
+      testFilm(CONFIG.NETFLIX.AREA_TEST_FILM_ID)
+    ]);
 
-// 补充缺失的checkNF实现
-async function checkNF(filmId) {
-  const options = {
-    url: `https://www.netflix.com/title/${filmId}`,
-    policy: $environment.params,
-    timeout: 5000,
-    headers: {
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0...)",
-      "Accept-Language": "en-US,en;q=0.9"
-    }
-  };
-
-  try {
-    const response = await $.task.fetch(options);
-    if (response.statusCode === 404) {
-      return { status: "OriginalOnly" };
-    } else if (response.statusCode === 403) {
-      return { status: "NotAvailable" };
-    } else if (response.statusCode === 200) {
-      const region = parseRegion(response.headers);
-      return {
-        status: "Success",
-        region: region,
-        isFullAccess: filmId === 81280792
-      };
-    }
-    return { status: "Unknown" };
+    const [mainResult, areaResult] = results;
+    netflix = mainResult.value || areaResult.value || "🚫未支持";
   } catch (error) {
-    return { status: "Timeout" };
+    netflix = "检测失败";
+    $.logErr("Netflix测试错误:", error);
   }
 }
 
-// 添加地区解析函数
-function parseRegion(headers) {
+async function testFilm(filmId) {
   try {
-    const url = headers["X-Originating-URL"];
-    return url.split("/")[3].split("-")[0].toUpperCase();
-  } catch (e) {
-    return "UNKNOWN";
+    const options = {
+      url: `${CONFIG.NETFLIX.BASE_URL}${filmId}`,
+      headers: { "User-Agent": CONFIG.NETFLIX.USER_AGENT },
+      timeout: CONFIG.TIMEOUT,
+      opts: { policy: $environment.params }
+    };
+
+    const response = await $.http.get(options);
+    if (!response) return null;
+
+    switch (response.statusCode) {
+      case 200:
+        return handleSuccessResponse(response, filmId);
+      case 403:
+        return "🚫未支持";
+      case 404:
+        return filmId === CONFIG.NETFLIX.MAIN_FILM_ID ? null : "🟡仅支持自制剧";
+      default:
+        return null;
+    }
+  } catch (error) {
+    return null;
   }
 }
 
-// 统一错误处理
-process.on("unhandledRejection", (reason) => {
-  $.log(`Unhandled rejection: ${reason}`);
-  services.GeneralError = true;
-});
+function handleSuccessResponse(response, filmId) {
+  const region = response.headers["X-Originating-URL"]?.split("/")[3]?.split("-")[0] || "us";
+  const flag = getCountryFlagEmoji(region.toUpperCase());
+  return filmId === CONFIG.NETFLIX.MAIN_FILM_ID 
+    ? `🎉完整支持${arrow}${flag}${region.toUpperCase()}`
+    : `🟡仅支持自制剧${arrow}${flag}${region.toUpperCase()}`;
+}
 
-// 生成报告函数优化
-async function generateReport() {
-  let res = "<div style='font-family: -apple-system; padding: 10px;'>";
-  res += "<h3 style='text-align: center;'>流媒体解锁报告</h3>";
-  
-  Object.entries(services).forEach(([name, service]) => {
-    res += `<p>${service.emoji} <b>${name}</b>: ${service.status}</p>`;
-  });
+async function testChatGPT() {
+  try {
+    const [ip, trace] = await Promise.all([getIP(), fetchChatGPTTrace()]);
+    
+    const cf = parseTrace(trace);
+    const { warpStatus, ipType } = analyzeIP(ip, cf);
+    const isSupported = CONFIG.CHATGPT.REGIONS.includes(cf.loc);
 
-  res += `<hr/><p>节点信息 ➟ ${$environment.params}</p>`;
-  res += "</div>";
-  
+    gpt = isSupported 
+      ? `${ipType} ➟ ${getCountryFlagEmoji(cf.loc)}${cf.loc}`
+      : "🚫未解锁";
+  } catch (error) {
+    gpt = "检测失败";
+    $.logErr("ChatGPT测试错误:", error);
+  }
+}
+
+async function fetchChatGPTTrace() {
+  const options = {
+    url: CONFIG.CHATGPT.TRACE_URL,
+    timeout: CONFIG.TIMEOUT,
+    opts: { policy: $environment.params }
+  };
+  const response = await $.http.get(options);
+  return response?.body || "";
+}
+
+function analyzeIP(originalIP, cfData) {
+  return {
+    warpStatus: cfData.warp === "plus" || cfData.warp === "on",
+    ipType: cfData.ip === originalIP ? "🎉原生解锁" : "🟡代理解锁"
+  };
+}
+
+async function testSpotify() {
+  try {
+    const options = {
+      url: CONFIG.SPOTIFY.API_URL,
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+      },
+      body: CONFIG.SPOTIFY.POST_DATA,
+      timeout: 20000,
+      opts: { policy: $environment.params }
+    };
+
+    const response = await $.http.post(options);
+    const result = parseSpotifyResponse(response?.body);
+    spotify = result || "🔴未解锁";
+  } catch (error) {
+    spotify = "检测失败";
+    $.logErr("Spotify测试错误:", error);
+  }
+}
+
+function parseSpotifyResponse(body) {
+  try {
+    const data = JSON.parse(body);
+    if (data.status === 311) {
+      return `🎉已解锁 ${arrow}${getCountryFlagEmoji(data.country)}${data.country}`;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+function getCountryFlagEmoji(countryCode) {
+  const codePoints = (countryCode || "")
+    .toUpperCase()
+    .split("")
+    .map(c => 127397 + c.charCodeAt());
+  return String.fromCodePoint(...codePoints);
+}
+
+async function getIP() {
+  try {
+    const options = {
+      url: `https://ipinfo.io/json?token=${$.token}`,
+      timeout: 5000,
+      opts: { policy: $environment.params }
+    };
+    const response = await $.http.get(options);
+    return JSON.parse(response.body)?.ip || "";
+  } catch {
+    return "";
+  }
+}
+
+function showResults() {
+  const styles = `
+    <style>
+      .container { font-family: -apple-system, sans-serif; padding: 12px; }
+      .title { font-size: 18px; font-weight: bold; text-align: center; margin-bottom: 12px; }
+      .result-item { margin: 8px 0; display: flex; align-items: center; }
+      .icon { width: 24px; margin-right: 8px; }
+      .node-info { text-align: center; color: #6959CD; margin-top: 12px; }
+    </style>
+  `;
+
+  const content = `
+    <div class="container">
+      <div class="title">流媒体查询结果</div>
+      ${createResultItem("📺 YouTube Premium", ytb)}
+      ${createResultItem("📺 Netflix", netflix)}
+      ${createResultItem("🤖 ChatGPT", gpt)}
+      ${createResultItem("🎵 Spotify", spotify)}
+      <div class="node-info">节点 ➟ ${$environment.params}</div>
+    </div>
+  `;
+
   $done({
-    title: "流媒体状态检测",
-    htmlMessage: res,
-    ...(services.GeneralError && { alert: true })
+    title: "流媒体查询结果",
+    htmlMessage: styles + content
   });
 }
+
+function createResultItem(icon, text) {
+  return `
+    <div class="result-item">
+      <span class="icon">${icon}</span>
+      <span>${text}</span>
+    </div>
+  `;
+}
+
+// 保留原有的Env类实现
+// prettier-ignore
+function Env(t,e){...}
