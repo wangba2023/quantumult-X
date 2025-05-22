@@ -10,6 +10,7 @@ const BASE_URL_Discovery_token = "https://us1-prod-direct.discoveryplus.com/toke
 const BASE_URL_Discovery = "https://us1-prod-direct.discoveryplus.com/users/me"
 const BASE_URL_GPT = 'https://chat.openai.com/'
 const Region_URL_GPT = 'https://chat.openai.com/cdn-cgi/trace'
+const BASE_URL_SPOTIFY = "https://www.spotify.com/";
 
 const link = { "media-url": "https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/img/southpark/7.png" } 
 const policy_name = "Netflix" //填入你的 netflix 策略组名
@@ -50,7 +51,7 @@ let result = {
   "Paramount" : "<b>Paramountᐩ: </b>检测失败，请重试 ❗️",
   "Discovery" : "<b>Discoveryᐩ: </b>检测失败，请重试 ❗️",
   "ChatGPT" : "<b>ChatGPT: </b>检测失败，请重试 ❗️"
-  //"Google": "Google 定位: 检测失败，请重试"
+ "Spotify": "<b>Spotify: </b>检测失败，请重试 ❗️",
 
 }
 const message = {
@@ -62,6 +63,7 @@ const message = {
   testYTB()
   testDazn()
   testParam()
+  testspotify()
   let [{ region, status }] = await Promise.all([testDisneyPlus(),testNf(FILM_ID),testDiscovery(),testChatGPT()])
   console.log("NetFlix Result:"+result["Netflix"])
   console.log(`testDisneyPlus: region=${region}, status=${status}`)
@@ -594,8 +596,6 @@ function testChatGPT() {
       resolve("ChatGPT failed")
     })})}
  
-const BASE_URL_SPOTIFY = "https://www.spotify.com/";
-"Spotify": "<b>Spotify: </b>检测失败，请重试 ❗️",
 function testSpotify() { 
   let option = {
     url: BASE_URL_SPOTIFY,
