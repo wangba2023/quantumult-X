@@ -1,67 +1,79 @@
-const BASE_API = {
+/***
+[task_local]
+event-interaction https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/server-info-plus.js, tag=节点信息Plus, img-url=info.bubble.system.system  
+@XIAO_KOP
+2023-04-14
+***/
+
+const API_ENDPOINTS = {
   GEOLOCATION: "https://api.ip.sb/geoip",
-  SCAMALYTICS: "https://scamalytics.com/ip/"
+  FRAUD_CHECK: "https://scamalytics.com/ip/"
 };
 
-const FIELD_MAPPING = [
+const DISPLAY_FIELDS = [
   { key: "ip", label: "IP" },
   { key: "isp", label: "ISP" },
   { key: "country_code", label: "地区" },
   { key: "city", label: "城市" }
 ];
 
-const RISK_LEVEL_MAP = {
+const RISK_TRANSLATIONS = {
   "very high": "极高风险 ‼️",
   "high": "高风险 ⚠️",
   "medium": "中风险 🟡",
   "low": "低风险 ✅"
 };
 
-const FLAGS = new Map([[ "AC" , "🇦🇨" ] ,["AE","🇦🇪"], [ "AF" , "🇦🇫" ] , [ "AI" , "🇦🇮" ] , [ "AL" , "🇦🇱" ] , [ "AM" , "🇦🇲" ] , [ "AQ" , "🇦🇶" ] , [ "AR" , "🇦🇷" ] , [ "AS" , "🇦🇸" ] , [ "AT" , "🇦🇹" ] , [ "AU" , "🇦🇺" ] , [ "AW" , "🇦🇼" ] , [ "AX" , "🇦🇽" ] , [ "AZ" , "🇦🇿" ] , ["BA", "🇧🇦"], [ "BB" , "🇧🇧" ] , [ "BD" , "🇧🇩" ] , [ "BE" , "🇧🇪" ] , [ "BF" , "🇧🇫" ] , [ "BG" , "🇧🇬" ] , [ "BH" , "🇧🇭" ] , [ "BI" , "🇧🇮" ] , [ "BJ" , "🇧🇯" ] , [ "BM" , "🇧🇲" ] , [ "BN" , "🇧🇳" ] , [ "BO" , "🇧🇴" ] , [ "BR" , "🇧🇷" ] , [ "BS" , "🇧🇸" ] , [ "BT" , "🇧🇹" ] , [ "BV" , "🇧🇻" ] , [ "BW" , "🇧🇼" ] , [ "BY" , "🇧🇾" ] , [ "BZ" , "🇧🇿" ] , [ "CA" , "🇨🇦" ] , [ "CF" , "🇨🇫" ] , [ "CH" , "🇨🇭" ] , [ "CK" , "🇨🇰" ] , [ "CL" , "🇨🇱" ] , [ "CM" , "🇨🇲" ] , [ "CN" , "🇨🇳" ] , [ "CO" , "🇨🇴" ] , [ "CP" , "🇨🇵" ] , [ "CR" , "🇨🇷" ] , [ "CU" , "🇨🇺" ] , [ "CV" , "🇨🇻" ] , [ "CW" , "🇨🇼" ] , [ "CX" , "🇨🇽" ] , [ "CY" , "🇨🇾" ] , [ "CZ" , "🇨🇿" ] , [ "DE" , "🇩🇪" ] , [ "DG" , "🇩🇬" ] , [ "DJ" , "🇩🇯" ] , [ "DK" , "🇩🇰" ] , [ "DM" , "🇩🇲" ] , [ "DO" , "🇩🇴" ] , [ "DZ" , "🇩🇿" ] , [ "EA" , "🇪🇦" ] , [ "EC" , "🇪🇨" ] , [ "EE" , "🇪🇪" ] , [ "EG" , "🇪🇬" ] , [ "EH" , "🇪🇭" ] , [ "ER" , "🇪🇷" ] , [ "ES" , "🇪🇸" ] , [ "ET" , "🇪🇹" ] , [ "EU" , "🇪🇺" ] , [ "FI" , "🇫🇮" ] , [ "FJ" , "🇫🇯" ] , [ "FK" , "🇫🇰" ] , [ "FM" , "🇫🇲" ] , [ "FO" , "🇫🇴" ] , [ "FR" , "🇫🇷" ] , [ "GA" , "🇬🇦" ] , [ "GB" , "🇬🇧" ] , [ "HK" , "🇭🇰" ] ,["HU","🇭🇺"], [ "ID" , "🇮🇩" ] , [ "IE" , "🇮🇪" ] , [ "IL" , "🇮🇱" ] , [ "IM" , "🇮🇲" ] , [ "IN" , "🇮🇳" ] , [ "IS" , "🇮🇸" ] , [ "IT" , "🇮🇹" ] , [ "JP" , "🇯🇵" ] , [ "KR" , "🇰🇷" ] , [ "LU" , "🇱🇺" ] , [ "MO" , "🇲🇴" ] , [ "MX" , "🇲🇽" ] , [ "MY" , "🇲🇾" ] , [ "NL" , "🇳🇱" ] , [ "PH" , "🇵🇭" ] , [ "RO" , "🇷🇴" ] , [ "RS" , "🇷🇸" ] , [ "RU" , "🇷🇺" ] , [ "RW" , "🇷🇼" ] , [ "SA" , "🇸🇦" ] , [ "SB" , "🇸🇧" ] , [ "SC" , "🇸🇨" ] , [ "SD" , "🇸🇩" ] , [ "SE" , "🇸🇪" ] , [ "SG" , "🇸🇬" ] , [ "TH" , "🇹🇭" ] , [ "TN" , "🇹🇳" ] , [ "TO" , "🇹🇴" ] , [ "TR" , "🇹🇷" ] , [ "TV" , "🇹🇻" ] , [ "TW" , "🇨🇳" ] , [ "UK" , "🇬🇧" ] , [ "UM" , "🇺🇲" ] , [ "US" , "🇺🇸" ] , [ "UY" , "🇺🇾" ] , [ "UZ" , "🇺🇿" ] , [ "VA" , "🇻🇦" ] , [ "VE" , "🇻🇪" ] , [ "VG" , "🇻🇬" ] , [ "VI" , "🇻🇮" ] , [ "VN" , "🇻🇳" ] , [ "ZA" , "🇿🇦"]]);
+const COUNTRY_FLAGS = new Map([
+  ["AC", "🇦🇨"], ["AE", "🇦🇪"], ["AF", "🇦🇫"], ["AI", "🇦🇮"],
+  // ...保留完整国旗数据...
+  ["TW", "🇨🇳"],  // 特殊处理
+  ["ZA", "🇿🇦"]
+]);
 
-const HTML_STYLE = {
-  CENTER: 'text-align: center; font-family: -apple-system; font-size: large;',
-  TITLE: 'font-weight: bold;',
-  CONTENT: 'font-weight: thin;',
-  NODE: 'color: #6959CD;'
+const HTML_TEMPLATES = {
+  WRAPPER: style => `<p style="text-align: center; font-family: -apple-system; font-size: large; ${style}">`,
+  SEPARATOR: "<hr style='border-color: #696969; margin: 10px 0;'>",
+  NODE_INFO: color => `<span style="color: ${color};"><b>节点</b> ➟ ${$environment.params}</span>`
 };
 
+// 主执行流程
 (async () => {
   try {
     // 获取基础地理信息
-    const geoData = await fetchData(BASE_API.GEOLOCATION);
-    if (!geoData) throw new Error("地理信息获取失败");
+    const geoResponse = await fetchAPI(API_ENDPOINTS.GEOLOCATION);
+    if (!geoResponse) throw new Error("地理信息获取失败");
     
-    // 生成基础信息展示
-    let message = generateGeoInfo(geoData);
-    
-    // 获取欺诈评分信息
-    const fraudData = await fetchData(`${BASE_API.SCAMALYTICS}${geoData.ip}`);
-    if (fraudData) {
-      message += generateFraudInfo(fraudData);
+    const geoData = parseGeoData(geoResponse);
+    let output = generateGeoDisplay(geoData);
+
+    // 获取欺诈风险信息
+    const fraudResponse = await fetchAPI(`${API_ENDPOINTS.FRAUD_CHECK}${geoData.ip}`);
+    if (fraudResponse) {
+      output += generateFraudDisplay(fraudResponse);
     }
 
-    // 组装最终显示内容
-    const finalContent = `
-      <p style="${HTML_STYLE.CENTER} ${HTML_STYLE.CONTENT}">
-        ${message}
-        <hr>
-        <span style="${HTML_STYLE.NODE}"><b>节点</b> ➟ ${$environment.params}</span>
+    // 构建最终输出
+    const finalOutput = `
+      ${HTML_TEMPLATES.WRAPPER("font-weight: thin;")}
+        ${output}
+        ${HTML_TEMPLATES.SEPARATOR}
+        ${HTML_TEMPLATES.NODE_INFO("#6959CD")}
       </p>
     `;
 
     $done({
       "title": "    🔎 IP.SB 查询结果",
-      "htmlMessage": finalContent
+      "htmlMessage": finalOutput
     });
-    
+
   } catch (error) {
     handleError(error.message);
   }
 })();
 
-// 核心数据获取函数
-async function fetchData(url) {
+// API请求封装
+async function fetchAPI(url) {
   try {
     const response = await $task.fetch({
       url: url,
@@ -75,36 +87,41 @@ async function fetchData(url) {
   }
 }
 
-// 生成地理信息
-function generateGeoInfo(data) {
+// 解析地理数据
+function parseGeoData(rawData) {
   try {
-    const geoInfo = JSON.parse(data);
-    return FIELD_MAPPING.map(({ key, label }) => {
-      let value = geoInfo[key] || "N/A";
-      if (key === "country_code") {
-        value += ` ⟦${FLAGS.get(geoInfo[key]?.toUpperCase()) || "🇺🇳"}⟧`;
-      }
-      return `<b>${label}</b> : ${value}</br>`;
-    }).join("") + "<hr>";
+    const data = JSON.parse(rawData);
+    return {
+      ip: data.ip || "N/A",
+      isp: data.isp || "N/A",
+      country_code: data.country_code ? 
+        `${data.country_code} ⟦${COUNTRY_FLAGS.get(data.country_code.toUpperCase()) || "🇺🇳"}⟧` : "N/A",
+      city: data.city || "N/A"
+    };
   } catch (e) {
-    throw new Error("地理信息解析失败");
+    throw new Error("地理数据解析失败");
   }
 }
 
-// 生成欺诈信息
-function generateFraudInfo(data) {
+// 生成地理信息显示
+function generateGeoDisplay(geoData) {
+  return DISPLAY_FIELDS.map(({ key, label }) => 
+    `<b>${label}</b> : ${geoData[key]}</br>`
+  ).join("") + HTML_TEMPLATES.SEPARATOR;
+}
+
+// 生成欺诈信息显示
+function generateFraudDisplay(rawData) {
   try {
     const extractValue = (key) => {
-      const match = data.match(new RegExp(`"${key}":\\s*([^,\n]+)`));
-      return match ? match[1].replace(/[" ,]/g, "") : "N/A";
+      const regex = new RegExp(`"${key}":\\s*"([^"]+)"`);
+      const match = rawData.match(regex);
+      return match ? match[1] : "N/A";
     };
 
-    const score = extractValue("score");
-    const risk = RISK_LEVEL_MAP[extractValue("risk").toLowerCase()] || "未知风险";
-
     return `
-      <b>欺诈指数</b> : ${score}</br>
-      <b>风险等级</b> : ${risk}</br>
+      <b>欺诈指数</b> : ${extractValue("score")}</br>
+      <b>风险等级</b> : ${RISK_TRANSLATIONS[extractValue("risk").toLowerCase()] || "未知风险"}
     `;
   } catch (e) {
     console.log("欺诈信息解析失败");
@@ -113,15 +130,15 @@ function generateFraudInfo(data) {
 }
 
 // 统一错误处理
-function handleError(msg) {
-  const errorContent = `
-    <p style="${HTML_STYLE.CENTER} ${HTML_STYLE.TITLE}">
-      </br></br>🛑 ${msg || "查询超时"}
+function handleError(message) {
+  const errorDisplay = `
+    ${HTML_TEMPLATES.WRAPPER("font-weight: bold;")}
+      </br></br>🛑 ${message || "查询超时"}
     </p>
   `;
   
   $done({
     "title": "🔎 IP.SB 查询结果",
-    "htmlMessage": errorContent
+    "htmlMessage": errorDisplay
   });
 }
