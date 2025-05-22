@@ -1,8 +1,11 @@
-// 修复后的代码（主要修正部分）
-const NETFLIX_BASE_URL = 'https://www.netflix.com/title/';
-const SPOTIFY_BASE_URL = "https://spclient.wg.spotify.com/signup/public/v1/account";
-const YOUTUBE_BASE_URL = "https://www.youtube.com/premium";
-// 其他常量声明...
+const BASE_URL = https://spclient.wg.spotify.com/signup/public/v1/account
+const BASE_URL = 'https://www.netflix.com/title/';
+const BASE_URL_YTB = "https://www.youtube.com/premium";
+const BASE_URL_DISNEY = 'https://www.disneyplus.com';
+const BASE_URL_Dazn = "https://startup.core.indazn.com/misl/v5/Startup";
+const BASE_URL_Param = "https://www.paramountplus.com/"
+const FILM_ID = 81280792
+const BASE_URL_Discovery_token = "https://us1-prod-direct.discoveryplus.com/token?
 
 let result = {
   "title": '    📺  流媒体服务查询',
