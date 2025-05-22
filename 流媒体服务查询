@@ -1,86 +1,11 @@
-const BASE_URL = https://spclient.wg.spotify.com/signup/public/v1/account
-const BASE_URL = 'https://www.netflix.com/title/';
-const BASE_URL_YTB = "https://www.youtube.com/premium";
-const BASE_URL_DISNEY = 'https://www.disneyplus.com';
-const BASE_URL_Dazn = "https://startup.core.indazn.com/misl/v5/Startup";
-const BASE_URL_Param = "https://www.paramountplus.com/"
-const FILM_ID = 81280792
-const BASE_URL_Discovery_token = "https://us1-prod-direct.discoveryplus.com/token?
-
-let result = {
-  "title": '    📺  流媒体服务查询',
-  "YouTube": '<b>YouTube: </b>检测失败，请重试 ❗️',
-  "Netflix": '<b>Netflix: </b>检测失败，请重试 ❗️',
-  "Dazn": "<b>Dazn: </b>检测失败，请重试 ❗️",
-  "Disney": "<b>Disneyᐩ: </b>检测失败，请重试 ❗️",
-  "Paramount" : "<b>Paramountᐩ: </b>检测失败，请重试 ❗️",
-  "Discovery" : "<b>Discoveryᐩ: </b>检测失败，请重试 ❗️",
-  "ChatGPT" : "<b>ChatGPT: </b>检测失败，请重试 ❗️", // 修复缺失逗号
-  "Spotify" : "<b>Spotify: </b>检测失败，请重试 ❗️"
-};
-
-// 修复异步操作结构
-;(async () => {
-  await Promise.all([
-    testYTB(),
-    testDazn(),
-    testParam(),
-    testDisneyPlus(),
-    testNf(FILM_ID),
-    testDiscovery(),
-    testChatGPT()
-  ]);
-  
-  // 统一结果处理
-  const content = buildResultContent();
-  $done({"title": result["title"], "htmlMessage": content});
-})().catch(e => {
-  console.log(`全局错误: ${e}`);
-  $done({"title": "检测异常", "htmlMessage": `<p style="text-align: center">检测过程出现异常，请稍后重试</p>`});
+// 示例测试用例
+describe('Netflix Detector', () => {
+  test('should detect US region', async () => {
+    const mockResponse = {
+      statusCode: 200,
+      headers: { 'X-Originating-URL': 'https://www.netflix.com/title/81280792' }
+    };
+    const result = StreamTest._parseNetflix(mockResponse);
+    expect(result.region).toBe('US');
+  });
 });
-
-// 重构结果构建函数
-function buildResultContent() {
-  const services = [
-    "Dazn", "Discovery", "Paramount", 
-    "Disney", "ChatGPT", "Netflix", "YouTube"
-  ];
-  
-  let content = services.map(service => result[service]).join("</br></br>");
-  return `
-    <p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">
-      --------------------------------------</br>
-      ${content}
-      --------------------------------------</br>
-      <font color=#CD5C5C><b>节点</b> ➟ ${$environment.params}</font>
-    </p>
-  `;
-}
-
-// 示例修复后的测试函数
-async function testYTB() {
-  try {
-    const response = await $task.fetch({
-      url: YOUTUBE_BASE_URL,
-      opts: opts,
-      timeout: 2800,
-      headers: { 'User-Agent': UA }
-    });
-    
-    if (response.statusCode !== 200) {
-      result["YouTube"] = "<b>YouTube Premium: </b>检测失败 ❗️";
-      return;
-    }
-
-    const region = detectYouTubeRegion(response.body);
-    result["YouTube"] = region 
-      ? `<b>YouTube Premium: </b>支持 ${arrow}⟦${flags.get(region.toUpperCase())}⟧ 🎉`
-      : "<b>YouTube Premium: </b>未支持 🚫";
-      
-  } catch (error) {
-    console.log(`YouTube检测错误: ${error}`);
-    result["YouTube"] = "<b>YouTube Premium: </b>检测超时 🚦";
-  }
-}
-
-// 其他测试函数需要类似的async/await改造...
