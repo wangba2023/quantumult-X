@@ -1,104 +1,109 @@
-/*
-作者: @mcdasheng @getSomeCats @KOP-XIAO @lmc999
-脚本功能: 综合流媒体解锁查询
-[task_local]
-event-interaction https://raw.githubusercontent.com/MCdasheng/QuantumultX/main/Streaming/check.js, tag=流媒体解锁查询, img-url=https://raw.githubusercontent.com/MCdasheng/QuantumultX/main/Icons/AppleTV.png
-@params
-  "ipinfo_token": https://ipinfo.io 官网自行申请 
-*/
-
+// 修复后的核心部分（主要问题修复）
 const $ = new Env("StreamUnlock");
 const arrow = " ➟ ";
-const flags = new Map([/* 国家旗帜映射表 */]);
+
+// 国家旗帜映射（需完整实现）
+const flags = new Map([
+  ["US", "🇺🇸"], ["JP", "🇯🇵"], ["KR", "🇰🇷"],
+  ["TW", "🇨🇳"], ["HK", "🇭🇰"], ["SG", "🇸🇬"],
+  // 补充完整国家代码...
+]);
+
+// 服务状态对象
 const services = {
-  YouTube: { emoji: "📺", status: "检测失败 ❗️" },
-  Netflix: { emoji: "🎬", status: "检测失败 ❗️" },
-  Spotify: { emoji: "🎵", status: "检测失败 ❗️" },
-  ChatGPT: { emoji: "🤖", status: "检测失败 ❗️" },
-  Disney: { emoji: "🏰", status: "检测失败 ❗️" },
-  Dazn: { emoji: "🏈", status: "检测失败 ❗️" },
-  Paramount: { emoji: "📡", status: "检测失败 ❗️" },
-  Discovery: { emoji: "🔍", status: "检测失败 ❗️" }
+  YouTube: { emoji: "📺", status: "检测失败 ❗️", region: "" },
+  Netflix: { emoji: "🎬", status: "检测失败 ❗️", region: "" },
+  Spotify: { emoji: "🎵", status: "检测失败 ❗️", region: "" },
+  ChatGPT: { emoji: "🤖", status: "检测失败 ❗️", region: "" },
+  Disney: { emoji: "🏰", status: "检测失败 ❗️", region: "" },
+  Dazn: { emoji: "🏈", status: "检测失败 ❗️", region: "" },
+  Paramount: { emoji: "📡", status: "检测失败 ❗️", region: "" },
+  Discovery: { emoji: "🔍", status: "检测失败 ❗️", region: "" }
 };
 
-(async () => {
-  await Promise.all([
-    testYouTube(),
-    testNetflix(),
-    testSpotify(),
-    testChatGPT(),
-    testDisneyPlus(),
-    testDazn(),
-    testParamount(),
-    testDiscovery()
-  ]);
-  
-  await generateReport();
-})()
-.catch((e) => $.logErr(e))
-.finally(() => $.done());
-
-/* 核心检测函数 */
+// 修复后的Netflix检测逻辑
 async function testNetflix() {
-  const filmIds = [81280792, 80018499];
-  for (const id of filmIds) {
-    const { status, region } = await checkNF(id);
-    if (status === "Success") {
-      services.Netflix.status = region ? `完整支持${arrow}${getFlag(region)} 🎉` : "仅自制剧 ⚠️";
-      break;
-    }
-  }
-}
-
-async function testYouTube() {
-  const { region } = await checkYTB();
-  services.YouTube.status = region ? `支持${arrow}${getFlag(region)} 🎉` : "未支持 🚫";
-}
-
-async function testChatGPT() {
-  const { region, unlock } = await checkGPT();
-  services.ChatGPT.status = unlock ? `支持${arrow}${getFlag(region)} 🎉` : "未支持 🚫";
-}
-
-/* 辅助函数 */
-function getFlag(code) {
-  return flags.get(code.toUpperCase()) || "🌐";
-}
-
-async function generateReport() {
-  let res = "------------------------------";
-  for (const [name, service] of Object.entries(services)) {
-    res += `</br><b>${service.emoji} ${name}</b>: ${service.status}</br>`;
-  }
-  res += `------------------------------</br>节点信息 ➟ ${$environment.params}`;
-  $done({ title: "流媒体解锁报告", htmlMessage: res });
-}
-
-/* HTTP请求统一处理 */
-async function fetchAPI(options) {
   try {
-    const resp = await $.http.get({ 
-      ...options,
-      timeout: 5000,
-      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)...' }
-    });
-    return resp.body;
+    const filmIds = [81280792, 80018499];
+    for (const id of filmIds) {
+      const result = await checkNF(id);
+      if (result.status === "Success") {
+        services.Netflix.status = result.isFullAccess ? 
+          `完整支持${arrow}${getFlag(result.region)} 🎉` : 
+          `仅自制剧${arrow}${getFlag(result.region)} ⚠️`;
+        services.Netflix.region = result.region;
+        break;
+      }
+    }
   } catch (e) {
-    return null;
+    services.Netflix.status = "检测超时 🚦";
+    $.logErr(e);
   }
 }
 
-// 各平台具体检测逻辑（示例）
+// 补充缺失的checkNF实现
 async function checkNF(filmId) {
-  const resp = await fetchAPI({ url: `https://www.netflix.com/title/${filmId}` });
-  // 解析响应逻辑...
+  const options = {
+    url: `https://www.netflix.com/title/${filmId}`,
+    policy: $environment.params,
+    timeout: 5000,
+    headers: {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0...)",
+      "Accept-Language": "en-US,en;q=0.9"
+    }
+  };
+
+  try {
+    const response = await $.task.fetch(options);
+    if (response.statusCode === 404) {
+      return { status: "OriginalOnly" };
+    } else if (response.statusCode === 403) {
+      return { status: "NotAvailable" };
+    } else if (response.statusCode === 200) {
+      const region = parseRegion(response.headers);
+      return {
+        status: "Success",
+        region: region,
+        isFullAccess: filmId === 81280792
+      };
+    }
+    return { status: "Unknown" };
+  } catch (error) {
+    return { status: "Timeout" };
+  }
 }
 
-// 其他平台检测函数类似...
+// 添加地区解析函数
+function parseRegion(headers) {
+  try {
+    const url = headers["X-Originating-URL"];
+    return url.split("/")[3].split("-")[0].toUpperCase();
+  } catch (e) {
+    return "UNKNOWN";
+  }
+}
 
-/*************************
-  完整实现需补充具体检测逻辑
-  包括响应状态码和内容分析
-  国家代码映射和旗帜显示
-  错误处理和超时控制等
-**************************/
+// 统一错误处理
+process.on("unhandledRejection", (reason) => {
+  $.log(`Unhandled rejection: ${reason}`);
+  services.GeneralError = true;
+});
+
+// 生成报告函数优化
+async function generateReport() {
+  let res = "<div style='font-family: -apple-system; padding: 10px;'>";
+  res += "<h3 style='text-align: center;'>流媒体解锁报告</h3>";
+  
+  Object.entries(services).forEach(([name, service]) => {
+    res += `<p>${service.emoji} <b>${name}</b>: ${service.status}</p>`;
+  });
+
+  res += `<hr/><p>节点信息 ➟ ${$environment.params}</p>`;
+  res += "</div>";
+  
+  $done({
+    title: "流媒体状态检测",
+    htmlMessage: res,
+    ...(services.GeneralError && { alert: true })
+  });
+}
