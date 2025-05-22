@@ -1,5 +1,5 @@
 // 修复后的核心部分（主要问题修复）
-const $ = new Env("StreamUnlock");
+const $ = new Env("Streaming");
 const arrow = " ➟ ";
 
 // 国家旗帜映射（需完整实现）
