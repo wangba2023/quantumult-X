@@ -5,201 +5,129 @@ const arrow = " ➟ ";
 const CONFIG = {
   SERVICES: {
     NETFLIX: {
-      BASE_URL: "https://www.netflix.com/title/",
-      MAIN_ID: 81280792,
-      REGION_ID: 80018499,
-      TIMEOUT: 5000
+      url: id => `https://www.netflix.com/title/${id}`,
+      ids: [81280792, 80018499],
+      parser: (res, service) => {
+        if (res.status === 403) return service.error('未支持');
+        if (res.status === 404) return service.warn('仅自制剧');
+        const region = (res.headers['X-Originating-URL']?.split('/')[3] || 'us').split('-')[0];
+        return service.success(region);
+      }
     },
     SPOTIFY: {
-      API_URL: "https://spclient.wg.spotify.com/signup/public/v1/account",
-      PRICE_URL: "https://www.spotify.com/",
-      TIMEOUT: 10000
+      url: "https://spclient.wg.spotify.com/signup/public/v1/account",
+      method: 'POST',
+      body: "birth_day=11&birth_month=11&...",
+      parser: res => {
+        const data = JSON.parse(res.body);
+        return data.status === 311 
+          ? {status: '已解锁', region: data.country}
+          : {status: '未解锁'};
+      }
     },
     YOUTUBE: {
-      URL: "https://www.youtube.com/premium",
-      TIMEOUT: 8000
-    },
-    // 其他服务配置...
+      url: "https://www.youtube.com/premium",
+      parser: res => {
+        const match = res.body.match(/"GL":"(\w{2})"/);
+        return match ? {status: '支持', region: match[1]} : {status: '未支持'};
+      }
+    }
   },
-  FLAGS: new Map([
-    ["US", "🇺🇸"], ["JP", "🇯🇵"], ["TW", "🇨🇳"], 
-    ["HK", "🇭🇰"], ["SG", "🇸🇬"], ["KR", "🇰🇷"]
-  ]),
-  STATUS: {
-    AVAILABLE: 1,
-    COMING: 2,
-    NOT_AVAILABLE: 0,
-    TIMEOUT: -1,
-    ERROR: -2
+  STATUS_STYLE: {
+    success: ['#34C759', '🎉'],
+    error: ['#FF3B30', '🚫'],
+    warn: ['#FF9500', '⚠️']
   }
 };
 
-/* ======================= 核心模块 ======================= */
-const StreamDetector = (() => {
-  let results = {};
-  let policy = $environment.params;
+/* ======================= 核心检测模块 ======================= */
+const StreamDetector = {
+  results: {},
+  
+  async run() {
+    await Promise.allSettled(Object.entries(CONFIG.SERVICES).map(
+      ([name, cfg]) => this.testService(name, cfg)
+    ));
+    return this.results;
+  },
 
-  return {
-    async runAllTests() {
-      await Promise.allSettled([
-        this.testNetflix(),
-        this.testYouTube(),
-        this.testSpotify(),
-        // 其他测试...
-      ]);
-      return this.formatResults();
-    },
-
-    /* ---------- Netflix 检测 ---------- */
-    async testNetflix() {
-      try {
-        const res = await this._fetch(CONFIG.SERVICES.NETFLIX.BASE_URL + CONFIG.SERVICES.NETFLIX.MAIN_ID);
-        results.Netflix = this._parseNetflix(res);
-      } catch (error) {
-        results.Netflix = this._handleError('Netflix', error);
-      }
-    },
-
-    _parseNetflix(response) {
-      if (response.status === 403) return {status: '未支持 🚫'};
-      if (response.status === 404) return {status: '仅自制剧 ⚠️'};
+  async testService(name, cfg) {
+    try {
+      const requests = cfg.ids?.map(id => 
+        this.fetch(cfg.url(id), cfg)
+      ) || [this.fetch(cfg.url, cfg)];
       
-      const region = this._extractRegion(response.headers);
-      return {
-        status: '完整支持 🎉',
-        region: CONFIG.FLAGS.get(region) + region
-      };
-    },
-
-    /* ---------- Spotify 增强检测 ---------- */
-    async testSpotify() {
-      try {
-        const [account, price] = await Promise.all([
-          this._testAccount(),
-          this._testPrice()
-        ]);
-        results.Spotify = {...account, price};
-      } catch (error) {
-        results.Spotify = this._handleError('Spotify', error);
-      }
-    },
-
-    async _testAccount() {
-      const res = await this._fetch(CONFIG.SERVICES.SPOTIFY.API_URL, {
-        method: 'POST',
-        body: "birth_day=11&birth_month=11&..."
-      });
-      return this._parseSpotify(res);
-    },
-
-    async _testPrice() {
-      const res = await this._fetch(CONFIG.SERVICES.SPOTIFY.PRICE_URL);
-      return this._parsePrice(res.body);
-    },
-
-    _parseSpotify(response) {
-      const data = JSON.parse(response.body);
-      if (data.status !== 311) return {status: '未解锁 🚫'};
-      
-      return {
-        status: '已解锁 🎉',
-        region: CONFIG.FLAGS.get(data.country) + data.country
-      };
-    },
-
-    /* ---------- 通用方法 ---------- */
-    _fetch(url, opts = {}) {
-      return $task.fetch({
-        url,
-        timeout: opts.timeout || 5000,
-        opts: { policy },
-        ...opts
-      });
-    },
-
-    _handleError(service, error) {
-      console.error(`[${service} Error]`, error);
-      return {
-        status: '检测失败 ❗️',
-        error: error.message
-      };
+      const responses = await Promise.all(requests);
+      this.results[name] = cfg.parser(responses[0], this.statusHelper(name));
+    } catch (error) {
+      this.results[name] = this.statusHelper(name).error(error.message);
     }
-  };
-})();
+  },
+
+  fetch(url, cfg) {
+    return $task.fetch({
+      url,
+      method: cfg.method || 'GET',
+      body: cfg.body,
+      opts: { policy: $environment.params },
+      timeout: 5000
+    });
+  },
+
+  statusHelper(service) {
+    return {
+      success: region => this.buildStatus(service, 'success', region),
+      error: msg => this.buildStatus(service, 'error', msg),
+      warn: msg => this.buildStatus(service, 'warn', msg)
+    };
+  },
+
+  buildStatus(service, type, data) {
+    const [color, emoji] = CONFIG.STATUS_STYLE[type];
+    return {
+      label: `${emoji} ${service}`,
+      status: `${data} ${this.getFlag(data)}`,
+      color
+    };
+  },
+
+  getFlag(code) {
+    return String.fromCodePoint(...[...code.toUpperCase()]
+      .map(c => 127397 + c.charCodeAt()));
+  }
+};
 
 /* ======================= 结果生成 ======================= */
 const ResultBuilder = {
-  build(results) {
-    return `
+  generate(results) {
+    return `<!DOCTYPE html><html>
       <style>
-        .container { 
-          font-family: -apple-system; 
-          padding: 20px;
-          background: #f5f5f7;
-          border-radius: 12px;
-        }
-        .service-item {
-          padding: 12px;
-          margin: 8px 0;
-          background: white;
-          border-radius: 8px;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .status-icon { 
-          width: 12px;
-          height: 12px;
-          border-radius: 50%;
-          display: inline-block;
-          margin-right: 8px;
-        }
-        .success { background: #34C759; }
-        .warning { background: #FF9500; }
-        .error { background: #FF3B30; }
+        .container{font-family:-apple-system;padding:15px;background:#f8f9fa}
+        .card{padding:12px;margin:8px 0;background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,0.1)}
+        .status{width:10px;height:10px;border-radius:50%;margin-right:8px}
       </style>
-      
       <div class="container">
-        ${this._buildServiceItems(results)}
-        <div class="node-info">
-          <font color="#5865F2">⟦节点⟧ ➟ ${$environment.params}</font>
-        </div>
-      </div>
-    `;
+        ${Object.values(results).map(this.buildCard).join('')}
+        <div class="card"><font color="#5865F2">⟦节点⟧ ➟ ${$environment.params}</font></div>
+      </div>`;
   },
 
-  _buildServiceItems(results) {
-    return Object.entries(results).map(([name, data]) => `
-      <div class="service-item">
-        <span class="status-icon ${this._getStatusClass(data)}"></span>
-        <b>${name}:</b> ${this._formatData(data)}
-      </div>
-    `).join('');
-  },
-
-  _formatData(data) {
-    let output = data.status;
-    if(data.region) output += ` ➟ ${data.region}`;
-    if(data.price) output += ` | 价格: ${data.price}`;
-    return output;
+  buildCard(data) {
+    return `<div class="card">
+      <span class="status" style="background:${data.color}"></span>
+      <b>${data.label}:</b> ${data.status}
+    </div>`;
   }
 };
 
-/* ======================= 主执行流程 ======================= */
+/* ======================= 主流程 ======================= */
 (async () => {
-  const results = await StreamDetector.runAllTests();
-  const htmlContent = ResultBuilder.build(results);
-  
-  $done({
-    title: "🎬 流媒体综合检测报告",
-    htmlMessage: htmlContent
+  const results = await StreamDetector.run();
+  $done({ 
+    title: "🎬 流媒体检测结果", 
+    htmlMessage: ResultBuilder.generate(results) 
   });
 })();
-
-// ======================= 工具函数 ========================
-function getCountryFlagEmoji(countryCode) {
-  const codePoints = countryCode.toUpperCase().split('')
-    .map(c => 127397 + c.charCodeAt());
-  return String.fromCodePoint(...codePoints);
-}
 
 // ======================= 环境适配 ========================
 function Env(t,e){/* Quantumult X 环境适配代码 */}
