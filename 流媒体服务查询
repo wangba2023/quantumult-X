@@ -1,11 +1,205 @@
-// 示例测试用例
-describe('Netflix Detector', () => {
-  test('should detect US region', async () => {
-    const mockResponse = {
-      statusCode: 200,
-      headers: { 'X-Originating-URL': 'https://www.netflix.com/title/81280792' }
-    };
-    const result = StreamTest._parseNetflix(mockResponse);
-    expect(result.region).toBe('US');
+const $ = new Env("Streaming+");
+const arrow = " ➟ ";
+
+/* ======================= 配置中心 ======================= */
+const CONFIG = {
+  SERVICES: {
+    NETFLIX: {
+      BASE_URL: "https://www.netflix.com/title/",
+      MAIN_ID: 81280792,
+      REGION_ID: 80018499,
+      TIMEOUT: 5000
+    },
+    SPOTIFY: {
+      API_URL: "https://spclient.wg.spotify.com/signup/public/v1/account",
+      PRICE_URL: "https://www.spotify.com/",
+      TIMEOUT: 10000
+    },
+    YOUTUBE: {
+      URL: "https://www.youtube.com/premium",
+      TIMEOUT: 8000
+    },
+    // 其他服务配置...
+  },
+  FLAGS: new Map([
+    ["US", "🇺🇸"], ["JP", "🇯🇵"], ["TW", "🇨🇳"], 
+    ["HK", "🇭🇰"], ["SG", "🇸🇬"], ["KR", "🇰🇷"]
+  ]),
+  STATUS: {
+    AVAILABLE: 1,
+    COMING: 2,
+    NOT_AVAILABLE: 0,
+    TIMEOUT: -1,
+    ERROR: -2
+  }
+};
+
+/* ======================= 核心模块 ======================= */
+const StreamDetector = (() => {
+  let results = {};
+  let policy = $environment.params;
+
+  return {
+    async runAllTests() {
+      await Promise.allSettled([
+        this.testNetflix(),
+        this.testYouTube(),
+        this.testSpotify(),
+        // 其他测试...
+      ]);
+      return this.formatResults();
+    },
+
+    /* ---------- Netflix 检测 ---------- */
+    async testNetflix() {
+      try {
+        const res = await this._fetch(CONFIG.SERVICES.NETFLIX.BASE_URL + CONFIG.SERVICES.NETFLIX.MAIN_ID);
+        results.Netflix = this._parseNetflix(res);
+      } catch (error) {
+        results.Netflix = this._handleError('Netflix', error);
+      }
+    },
+
+    _parseNetflix(response) {
+      if (response.status === 403) return {status: '未支持 🚫'};
+      if (response.status === 404) return {status: '仅自制剧 ⚠️'};
+      
+      const region = this._extractRegion(response.headers);
+      return {
+        status: '完整支持 🎉',
+        region: CONFIG.FLAGS.get(region) + region
+      };
+    },
+
+    /* ---------- Spotify 增强检测 ---------- */
+    async testSpotify() {
+      try {
+        const [account, price] = await Promise.all([
+          this._testAccount(),
+          this._testPrice()
+        ]);
+        results.Spotify = {...account, price};
+      } catch (error) {
+        results.Spotify = this._handleError('Spotify', error);
+      }
+    },
+
+    async _testAccount() {
+      const res = await this._fetch(CONFIG.SERVICES.SPOTIFY.API_URL, {
+        method: 'POST',
+        body: "birth_day=11&birth_month=11&..."
+      });
+      return this._parseSpotify(res);
+    },
+
+    async _testPrice() {
+      const res = await this._fetch(CONFIG.SERVICES.SPOTIFY.PRICE_URL);
+      return this._parsePrice(res.body);
+    },
+
+    _parseSpotify(response) {
+      const data = JSON.parse(response.body);
+      if (data.status !== 311) return {status: '未解锁 🚫'};
+      
+      return {
+        status: '已解锁 🎉',
+        region: CONFIG.FLAGS.get(data.country) + data.country
+      };
+    },
+
+    /* ---------- 通用方法 ---------- */
+    _fetch(url, opts = {}) {
+      return $task.fetch({
+        url,
+        timeout: opts.timeout || 5000,
+        opts: { policy },
+        ...opts
+      });
+    },
+
+    _handleError(service, error) {
+      console.error(`[${service} Error]`, error);
+      return {
+        status: '检测失败 ❗️',
+        error: error.message
+      };
+    }
+  };
+})();
+
+/* ======================= 结果生成 ======================= */
+const ResultBuilder = {
+  build(results) {
+    return `
+      <style>
+        .container { 
+          font-family: -apple-system; 
+          padding: 20px;
+          background: #f5f5f7;
+          border-radius: 12px;
+        }
+        .service-item {
+          padding: 12px;
+          margin: 8px 0;
+          background: white;
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status-icon { 
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          display: inline-block;
+          margin-right: 8px;
+        }
+        .success { background: #34C759; }
+        .warning { background: #FF9500; }
+        .error { background: #FF3B30; }
+      </style>
+      
+      <div class="container">
+        ${this._buildServiceItems(results)}
+        <div class="node-info">
+          <font color="#5865F2">⟦节点⟧ ➟ ${$environment.params}</font>
+        </div>
+      </div>
+    `;
+  },
+
+  _buildServiceItems(results) {
+    return Object.entries(results).map(([name, data]) => `
+      <div class="service-item">
+        <span class="status-icon ${this._getStatusClass(data)}"></span>
+        <b>${name}:</b> ${this._formatData(data)}
+      </div>
+    `).join('');
+  },
+
+  _formatData(data) {
+    let output = data.status;
+    if(data.region) output += ` ➟ ${data.region}`;
+    if(data.price) output += ` | 价格: ${data.price}`;
+    return output;
+  }
+};
+
+/* ======================= 主执行流程 ======================= */
+(async () => {
+  const results = await StreamDetector.runAllTests();
+  const htmlContent = ResultBuilder.build(results);
+  
+  $done({
+    title: "🎬 流媒体综合检测报告",
+    htmlMessage: htmlContent
   });
-});
+})();
+
+// ======================= 工具函数 ========================
+function getCountryFlagEmoji(countryCode) {
+  const codePoints = countryCode.toUpperCase().split('')
+    .map(c => 127397 + c.charCodeAt());
+  return String.fromCodePoint(...codePoints);
+}
+
+// ======================= 环境适配 ========================
+function Env(t,e){/* Quantumult X 环境适配代码 */}
