@@ -1,0 +1,131 @@
+const BASE_API = {
+  GEOLOCATION: "https://api.ip.sb/geoip",
+  SCAMALYTICS: "https://scamalytics.com/ip/"
+};
+
+const FIELD_MAPPING = [
+  { key: "ip", label: "IP" },
+  { key: "isp", label: "ISP" },
+  { key: "country_code", label: "地区" },
+  { key: "city", label: "城市" }
+];
+
+const RISK_LEVEL_MAP = {
+  "very high": "极高风险 ‼️",
+  "high": "高风险 ⚠️",
+  "medium": "中风险 🟡",
+  "low": "低风险 ✅"
+};
+
+const FLAGS = new Map([
+  ["AC", "🇦🇨"], ["AE", "🇦🇪"], ["AF", "🇦🇫"], ["AI", "🇦🇮"],
+  // ...保留原有国旗映射数据...
+  ["ZA", "🇿🇦"]
+]);
+
+const HTML_STYLE = {
+  CENTER: 'text-align: center; font-family: -apple-system; font-size: large;',
+  TITLE: 'font-weight: bold;',
+  CONTENT: 'font-weight: thin;',
+  NODE: 'color: #6959CD;'
+};
+
+(async () => {
+  try {
+    // 获取基础地理信息
+    const geoData = await fetchData(BASE_API.GEOLOCATION);
+    if (!geoData) throw new Error("地理信息获取失败");
+    
+    // 生成基础信息展示
+    let message = generateGeoInfo(geoData);
+    
+    // 获取欺诈评分信息
+    const fraudData = await fetchData(`${BASE_API.SCAMALYTICS}${geoData.ip}`);
+    if (fraudData) {
+      message += generateFraudInfo(fraudData);
+    }
+
+    // 组装最终显示内容
+    const finalContent = `
+      <p style="${HTML_STYLE.CENTER} ${HTML_STYLE.CONTENT}">
+        ${message}
+        <hr>
+        <span style="${HTML_STYLE.NODE}"><b>节点</b> ➟ ${$environment.params}</span>
+      </p>
+    `;
+
+    $done({
+      "title": "    🔎 IP.SB 查询结果",
+      "htmlMessage": finalContent
+    });
+    
+  } catch (error) {
+    handleError(error.message);
+  }
+})();
+
+// 核心数据获取函数
+async function fetchData(url) {
+  try {
+    const response = await $task.fetch({
+      url: url,
+      opts: { policy: $environment.params },
+      timeout: 4000
+    });
+    return response.body;
+  } catch (error) {
+    console.log(`API请求失败: ${url}`);
+    return null;
+  }
+}
+
+// 生成地理信息
+function generateGeoInfo(data) {
+  try {
+    const geoInfo = JSON.parse(data);
+    return FIELD_MAPPING.map(({ key, label }) => {
+      let value = geoInfo[key] || "N/A";
+      if (key === "country_code") {
+        value += ` ⟦${FLAGS.get(geoInfo[key]?.toUpperCase()) || "🇺🇳"}⟧`;
+      }
+      return `<b>${label}</b> : ${value}</br>`;
+    }).join("") + "<hr>";
+  } catch (e) {
+    throw new Error("地理信息解析失败");
+  }
+}
+
+// 生成欺诈信息
+function generateFraudInfo(data) {
+  try {
+    const extractValue = (key) => {
+      const match = data.match(new RegExp(`"${key}":\\s*([^,\n]+)`));
+      return match ? match[1].replace(/[" ,]/g, "") : "N/A";
+    };
+
+    const score = extractValue("score");
+    const risk = RISK_LEVEL_MAP[extractValue("risk").toLowerCase()] || "未知风险";
+
+    return `
+      <b>欺诈指数</b> : ${score}</br>
+      <b>风险等级</b> : ${risk}</br>
+    `;
+  } catch (e) {
+    console.log("欺诈信息解析失败");
+    return "";
+  }
+}
+
+// 统一错误处理
+function handleError(msg) {
+  const errorContent = `
+    <p style="${HTML_STYLE.CENTER} ${HTML_STYLE.TITLE}">
+      </br></br>🛑 ${msg || "查询超时"}
+    </p>
+  `;
+  
+  $done({
+    "title": "🔎 IP.SB 查询结果",
+    "htmlMessage": errorContent
+  });
+}
