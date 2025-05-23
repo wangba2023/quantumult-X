@@ -1,4 +1,8 @@
 const $ = new Env("Streaming");
+const TWITTER_WEB_URL = "https://twitter.com";
+const TWITTER_API_URL = "https://api.twitter.com/2/users/me";
+const FB_API_URL = "https://graph.facebook.com/v18.0/me";
+const FB_WEB_URL = "https://www.facebook.com";
 const BASE_URL = "https://www.netflix.com/title/";
 const FILM_ID = 81280792;
 const AREA_TEST_FILM_ID = 80018499;
@@ -15,6 +19,9 @@ $.token = $.getdata("ipinfo_token") ? $.getdata("ipinfo_token") : "";
   await disneyplus_Test();
   await Dazn_Test();
   await Param_Test();
+  await Twitter_Test();
+  await Facebook_Test();
+  await Instagram_Test();
   await TikTok_Test();
 })()
   .catch((e) => $.logErr(e))
@@ -69,6 +76,36 @@ res =
       "</br><b>" +
       "<font  color=>" +
       "📻Param" +
+      "</font> : " +
+      "</b>" +
+      "<font  color=>" +
+      netflix +
+      "</font></br>";
+res =
+      res +
+      "</br><b>" +
+      "<font  color=>" +
+      "📻Twitter" +
+      "</font> : " +
+      "</b>" +
+      "<font  color=>" +
+      netflix +
+      "</font></br>";
+res =
+      res +
+      "</br><b>" +
+      "<font  color=>" +
+      "📻Facebook" +
+      "</font> : " +
+      "</b>" +
+      "<font  color=>" +
+      netflix +
+      "</font></br>";
+res =
+      res +
+      "</br><b>" +
+      "<font  color=>" +
+      "📻Instagram" +
       "</font> : " +
       "</b>" +
       "<font  color=>" +
@@ -546,6 +583,125 @@ async function testTikTok() {
     } catch (error) {
         console.log("TikTok error:" + error);
         result["TikTok"] = "<b>TikTok: </b>检测异常 🚫";
+    }
+}
+async function testInstagram() {
+    try {
+        let option = {
+            url: BASE_URL_INSTAGRAM,
+            opts: opts,
+            timeout: 3000,
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+            }
+        };
+
+        $task.fetch(option).then(response => {
+            if (response.statusCode === 200) {
+                if (response.body.includes('login')) {
+                    result["Instagram"] = "<b>Instagram: </b>支持 🎉";
+                } else if (response.body.includes('blocked')) {
+                    result["Instagram"] = "<b>Instagram: </b>区域限制 🚫";
+                }
+            } else {
+                result["Instagram"] = "<b>Instagram: </b>连接异常 ❗️";
+            }
+        }, reason => {
+            result["Instagram"] = "<b>Instagram: </b>请求超时 🕒";
+        });
+    } catch (error) {
+        result["Instagram"] = "<b>Instagram: </b>检测异常 ⚠️";
+    }
+}
+
+async function testFacebook() {
+    try {
+        // 基础网页可达性检测
+        const webOption = {
+            url: FB_WEB_URL,
+            timeout: 5000,
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+                'Accept-Language': 'en-US,en;q=0.9'
+            }
+        };
+        
+        // API接口检测（需有效access_token）
+        const apiOption = {
+            url: `${FB_API_URL}?fields=id,name&access_token=VALID_TOKEN`,
+            timeout: 3000
+        };
+
+        await Promise.all([
+            $task.fetch(webOption).then(webRes => {
+                if (webRes.statusCode === 200) {
+                    if (/meta property="og:url" content="https:\/\/www\.facebook\.com"/.test(webRes.body)) {
+                        result["Facebook"] = "<b>Facebook网页: </b>可访问 🌐";
+                    } else {
+                        result["Facebook"] = "<b>Facebook网页: </b>区域限制/重定向 🚧";
+                    }
+                } else {
+                    result["Facebook"] = `<b>Facebook网页: </b>HTTP ${webRes.statusCode} ❗`;
+                }
+            }),
+            
+            $task.fetch(apiOption).then(apiRes => {
+                const data = JSON.parse(apiRes.body);
+                if (!data.error) {
+                    result["Facebook"] += `</br><b>API连通性: </b>正常 ✔️`;
+                } else {
+                    result["Facebook"] += `</br><b>API连通性: </b>${data.error.message} ⚠️`;
+                }
+            }).catch(() => {
+                result["Facebook"] += `</br><b>API连通性: </b>检测跳过（需配置token）`;
+            })
+        ]);
+    } catch (error) {
+        result["Facebook"] = `<b>Facebook: </b>检测异常 ⚠️ (${error.message})`;
+    }
+}
+
+async function testTwitter() {
+    try {
+        // 基础网页检测（规避风控策略）:ml-citation{ref="4" data="citationList"}
+        const webOption = {
+            url: TWITTER_WEB_URL,
+            timeout: 4000,
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36',
+                'Accept-Language': 'en-US,en;q=0.5',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        };
+
+        // API检测（需Bearer Token）:ml-citation{ref="4,7" data="citationList"}
+        const apiOption = {
+            url: TWITTER_API_URL,
+            headers: {
+                'Authorization': 'Bearer AAAAAAAAAAAAAAAAAAAAAA...',
+                'Content-Type': 'application/json'
+            }
+        };
+
+        await Promise.all([
+            $task.fetch(webOption).then(webRes => {
+                const isBlocked = /country-withheld-content|unavailable/.test(webRes.body);
+                result["Twitter"] = isBlocked ? 
+                    "<b>Twitter网页: </b>区域限制 🚫" : 
+                    `<b>Twitter网页: </b>HTTP ${webRes.statusCode} ${webRes.statusCode === 200 ? '✔️' : '❗'}`;
+            }),
+
+            $task.fetch(apiOption).then(apiRes => {
+                const data = JSON.parse(apiRes.body);
+                result["Twitter"] += data.errors ? 
+                    `</br><b>API状态: </b>${data.errors[0].message}` : 
+                    `</br><b>API身份: </b>@${data.data.username}`;
+            }).catch(e => {
+                result["Twitter"] += "</br><b>API检测: </b>需配置有效Token";
+            })
+        ]);
+    } catch (error) {
+        result["Twitter"] = `<b>Twitter: </b>${error.message.substring(0, 30)}...`;
     }
 }
 
