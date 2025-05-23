@@ -85,7 +85,7 @@ res =
       res +
       "</br><b>" +
       "<font  color=>" +
-      "📻Twitter" +
+      "🦅Twitter" +
       "</font> : " +
       "</b>" +
       "<font  color=>" +
@@ -95,7 +95,7 @@ res =
       res +
       "</br><b>" +
       "<font  color=>" +
-      "📻Facebook" +
+      "🎟️Facebook" +
       "</font> : " +
       "</b>" +
       "<font  color=>" +
@@ -105,7 +105,7 @@ res =
       res +
       "</br><b>" +
       "<font  color=>" +
-      "📻Instagram" +
+      "🎨Instagram" +
       "</font> : " +
       "</b>" +
       "<font  color=>" +
