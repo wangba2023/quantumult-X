@@ -23,7 +23,7 @@ $.token = $.getdata("ipinfo_token") ? $.getdata("ipinfo_token") : "";
       res +
       "</br><b>" +
       "<font  color=>" +
-      "📺YouTube Premium" +
+      "📽️YouTube Premium" +
       "</font> : " +
       "</b>" +
       "<font  color=>" +
@@ -34,7 +34,7 @@ $.token = $.getdata("ipinfo_token") ? $.getdata("ipinfo_token") : "";
       res +
       "</br><b>" +
       "<font  color=>" +
-      "📺Netflix" +
+      "🎥Netflix" +
       "</font> : " +
       "</b>" +
       "<font  color=>" +
@@ -45,7 +45,7 @@ res =
       res +
       "</br><b>" +
       "<font  color=>" +
-      "📺disneyplus" +
+      "📹disneyplus" +
       "</font> : " +
       "</b>" +
       "<font  color=>" +
@@ -67,7 +67,7 @@ res =
       res +
       "</br><b>" +
       "<font  color=>" +
-      "📺Param" +
+      "📻Param" +
       "</font> : " +
       "</b>" +
       "<font  color=>" +
@@ -78,7 +78,7 @@ res =
       res +
       "</br><b>" +
       "<font  color=>" +
-      "🤖ChatGPT" +
+      "🤹‍♂️ChatGPT" +
       "</font> : " +
       "</b>" +
       "<font  color=>" +
@@ -89,7 +89,7 @@ res =
       res +
       "</br><b>" +
       "<font  color=>" +
-      "🎵Spotify" +
+      "🎙️Spotify" +
       "</font> : " +
       "</b>" +
       "<font  color=>" +
