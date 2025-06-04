@@ -13,6 +13,5 @@
 ^https?:\/\/.+\.snssdk.com\/api\/ad\/.+ url reject
 ^http:\/\/.+\.byteimg\.com\/ad-app-package url reject
 ^http:\/\/.+\.byteimg\.com\/web\.business\.image url reject
- .+web\.business\.image url reject
 ^https?:\/\/.+?\.snssdk\.com\/motor\/operation\/activity\/display\/config\/V2\/ url reject
 hostname =*.pangolin-sdk-toutiao *.pangolin-sdk-toutiao.* *.pstatp.com *.pstatp.com.* *.pglstatp-toutiao.com.* *.pglstatp-toutiao.com gurd.snssdk.com gurd.snssdk.com.* *default.ixigua.com
