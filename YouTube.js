@@ -1,5 +1,5 @@
 
-hostname = *.googlevideo.com,www.youtube.com,s.youtube.com,youtubei.googleapis.com
+hostname = *.googlevideo.com,youtubei.googleapis.com
 
 # ======= 视频广告请求 ======= #
 (^https?:\/\/[\w-]+\.googlevideo\.com\/(?!dclk_video_ads).+?)&ctier=L(&.+?),ctier,(.+) url 302 $1$2$3
