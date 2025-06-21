@@ -1,0 +1,2 @@
+proxies:
+-{name: TW台湾 台中市, server: twmoon1-cdn-route.couldflare-cdn.com, port: 1443, client-fingerprint: null, type: http, uuid: fab7bf9c-ddb9-4563-8a04-fb01ce6c0fbf, tls: true, tfo: false, servername: null, skip-cert-verify: null, network: ws, ws-opts: {path: "Telegram🇨🇳 @WangCai2 /?ed=2560", headers: {Host: tw.laoyoutiao.link}}, password: exaxgqkKkd0TAMrCxeonWg==, username: mrwdfNTD8M79LCukCieldrqZWqs=}
