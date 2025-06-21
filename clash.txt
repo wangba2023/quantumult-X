@@ -13,58 +13,14 @@ proxy-groups:
     proxies:
       - ♻️ 自动选择
       - DIRECT
-      - 🇭🇰👖TG频道@stymei1丨1
-      - 🇭🇰👖TG频道@stymei1丨2
-      - 🇭🇰👖TG频道@stymei1丨3
-      - 🇭🇰👖TG频道@stymei1丨4
-      - 🇭🇰👖TG频道@stymei1丨5
-      - 🇭🇰👖TG频道@stymei1丨6
-      - 🇭🇰👖TG频道@stymei1丨7
-      - 🇭🇰👖TG频道@stymei1丨8
-      - 🇭🇰👖TG频道@stymei1丨9
-      - 🇭🇰👖TG频道@stymei1丨10
-      - 🇭🇰👖TG频道@stymei1丨11
-      - 🇭🇰👖TG频道@stymei1丨12
-      - 🇭🇰👖TG频道@stymei1丨13
-      - 🇭🇰👖TG频道@stymei1丨14
-      - 🇭🇰👖TG频道@stymei1丨15
-      - 🇭🇰👖TG频道@stymei1丨16
-      - 🇭🇰👖TG频道@stymei1丨17
-      - 🇭🇰👖TG频道@stymei1丨18
-      - 🇭🇰👖TG频道@stymei1丨19
-      - 🇭🇰👖TG频道@stymei1丨20
-      - 🇭🇰👖TG频道@stymei1丨21
-      - 🇭🇰👖TG频道@stymei1丨22
-      - 🇭🇰👖TG频道@stymei1丨23
+      - TW 中国台湾
   - name: ♻️ 自动选择
     type: url-test
     url: http://www.gstatic.com/generate_204
     interval: 300
     tolerance: 50
     proxies:
-      - 🇭🇰👖TG频道@stymei1丨1
-      - 🇭🇰👖TG频道@stymei1丨2
-      - 🇭🇰👖TG频道@stymei1丨3
-      - 🇭🇰👖TG频道@stymei1丨4
-      - 🇭🇰👖TG频道@stymei1丨5
-      - 🇭🇰👖TG频道@stymei1丨6
-      - 🇭🇰👖TG频道@stymei1丨7
-      - 🇭🇰👖TG频道@stymei1丨8
-      - 🇭🇰👖TG频道@stymei1丨9
-      - 🇭🇰👖TG频道@stymei1丨10
-      - 🇭🇰👖TG频道@stymei1丨11
-      - 🇭🇰👖TG频道@stymei1丨12
-      - 🇭🇰👖TG频道@stymei1丨13
-      - 🇭🇰👖TG频道@stymei1丨14
-      - 🇭🇰👖TG频道@stymei1丨15
-      - 🇭🇰👖TG频道@stymei1丨16
-      - 🇭🇰👖TG频道@stymei1丨17
-      - 🇭🇰👖TG频道@stymei1丨18
-      - 🇭🇰👖TG频道@stymei1丨19
-      - 🇭🇰👖TG频道@stymei1丨20
-      - 🇭🇰👖TG频道@stymei1丨21
-      - 🇭🇰👖TG频道@stymei1丨22
-      - 🇭🇰👖TG频道@stymei1丨23
+      - TW 中国台湾
   - name: 🎯 全球直连
     type: select
     proxies:
@@ -82,29 +38,7 @@ proxy-groups:
       - 🚀 节点选择
       - 🎯 全球直连
       - ♻️ 自动选择
-      - 🇭🇰👖TG频道@stymei1丨1
-      - 🇭🇰👖TG频道@stymei1丨2
-      - 🇭🇰👖TG频道@stymei1丨3
-      - 🇭🇰👖TG频道@stymei1丨4
-      - 🇭🇰👖TG频道@stymei1丨5
-      - 🇭🇰👖TG频道@stymei1丨6
-      - 🇭🇰👖TG频道@stymei1丨7
-      - 🇭🇰👖TG频道@stymei1丨8
-      - 🇭🇰👖TG频道@stymei1丨9
-      - 🇭🇰👖TG频道@stymei1丨10
-      - 🇭🇰👖TG频道@stymei1丨11
-      - 🇭🇰👖TG频道@stymei1丨12
-      - 🇭🇰👖TG频道@stymei1丨13
-      - 🇭🇰👖TG频道@stymei1丨14
-      - 🇭🇰👖TG频道@stymei1丨15
-      - 🇭🇰👖TG频道@stymei1丨16
-      - 🇭🇰👖TG频道@stymei1丨17
-      - 🇭🇰👖TG频道@stymei1丨18
-      - 🇭🇰👖TG频道@stymei1丨19
-      - 🇭🇰👖TG频道@stymei1丨20
-      - 🇭🇰👖TG频道@stymei1丨21
-      - 🇭🇰👖TG频道@stymei1丨22
-      - 🇭🇰👖TG频道@stymei1丨23
+      - TW 中国台湾
 rules:
   - DOMAIN-SUFFIX,acl4.ssr,🎯 全球直连
   - DOMAIN-SUFFIX,ip6-localhost,🎯 全球直连
