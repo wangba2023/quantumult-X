@@ -7,6 +7,66 @@ log-level: info
 external-controller: :9090
 proxies:
   - {name: TW 中国台湾, server: twmoon1-cdn-route.couldflare-cdn.com, port: 1443, client-fingerprint: null, type: http, uuid: fab7bf9c-ddb9-4563-8a04-fb01ce6c0fbf, tls: true, tfo: false, servername: null, skip-cert-verify: null, network: ws, ws-opts: {path: "Telegram🇨🇳 @WangCai2 /?ed=2560", headers: {Host: tw.laoyoutiao.link}}, password: exaxgqkKkd0TAMrCxeonWg==, username: mrwdfNTD8M79LCukCieldrqZWqs=}
+  - {name: HKG 01, server: ll0425sz.mtls.xyz, port: 30001, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: HKG 02, server: ll0425sz.mtls.xyz, port: 30002, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: HKG 03, server: ll0425sz.mtls.xyz, port: 30003, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: HKG 04, server: ll0425sz.mtls.xyz, port: 30006, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: HKG 05, server: ll0425sz.mtls.xyz, port: 30077, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: HKG 06, server: ll0425sz.mtls.xyz, port: 30110, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: HKG 07, server: ll0425sz.mtls.xyz, port: 30494, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: HKG 08 HKT, server: ll0425sz.mtls.xyz, port: 30234, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: HKG 09 HKBN, server: ll0425sz.mtls.xyz, port: 20292, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: HKG 10 HGC, server: ll0425sz.mtls.xyz, port: 30482, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: HKG 11 iCable, server: ll0425sz.mtls.xyz, port: 30642, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: HKG 12 CMHK, server: ll0425sz.mtls.xyz, port: 30678, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: HKG 13, server: ll0425sz.mtls.xyz, port: 30699, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: HKG 14, server: ll0425sz.mtls.xyz, port: 30700, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: HKG 15, server: ll0425sz.mtls.xyz, port: 30755, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: HKG 16, server: ll0425sz.mtls.xyz, port: 30763, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: HKG 17, server: ll0425sz.mtls.xyz, port: 30764, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: HKG 18, server: ll0425sz.mtls.xyz, port: 30765, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: TWN 01, server: ll0425sz.mtls.xyz, port: 30169, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: TWN 02, server: ll0425sz.mtls.xyz, port: 30173, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: TWN 03, server: ll0425sz.mtls.xyz, port: 30183, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: TWN 04 Hinet, server: ll0425sz.mtls.xyz, port: 33752, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: TWN 05 Hinet, server: ll0425sz.mtls.xyz, port: 30670, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: TWN 06 Hinet, server: ll0425sz.mtls.xyz, port: 30671, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: MYS 01, server: ll0425sz.mtls.xyz, port: 30634, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: SGP EX, server: ll0425sz.mtls.xyz, port: 30592, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: SGP 01, server: ll0425sz.mtls.xyz, port: 30004, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: SGP 02, server: ll0425sz.mtls.xyz, port: 30005, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: SGP 03, server: ll0425sz.mtls.xyz, port: 30107, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: SGP 04, server: ll0425sz.mtls.xyz, port: 30578, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: SGP 05, server: ll0425sz.mtls.xyz, port: 30581, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: SGP 06, server: ll0425sz.mtls.xyz, port: 30689, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: SGP 07 SGGS, server: ll0425sz.mtls.xyz, port: 30140, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: SGP 08 SGGS, server: ll0425sz.mtls.xyz, port: 30662, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: SGP 09, server: ll0425sz.mtls.xyz, port: 30790, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: SGP SP, server: ll-sg-sp-sdfwef-01.lily.lat, port: 32214, type: trojan, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, skip-cert-verify: true, udp: true, tfo: false}
+  - {name: JPN 01, server: ll0427hr.mtls.xyz, port: 30001, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: JPN 02, server: ll0427hr.mtls.xyz, port: 30008, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: JPN 03, server: ll0427hr.mtls.xyz, port: 30029, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: JPN 04, server: ll0427hr.mtls.xyz, port: 30216, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: JPN 05 Sonet, server: ll0427hr.mtls.xyz, port: 30231, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: JPN 06 BIGLOBE, server: ll0427hr.mtls.xyz, port: 30490, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: JPN 07, server: ll0427hr.mtls.xyz, port: 30623, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: JPN 08, server: ll0427hr.mtls.xyz, port: 30652, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: JPN 09, server: ll0427hr.mtls.xyz, port: 30655, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: JPN 10, server: ll0427hr.mtls.xyz, port: 30656, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: JPN 11 KDDI, server: ll0427hr.mtls.xyz, port: 30735, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: JPN 12, server: ll0427hr.mtls.xyz, port: 30784, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: JPN 13, server: ll0427hr.mtls.xyz, port: 30785, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: JPN 14 Softbank, server: ll0427hr.mtls.xyz, port: 31794, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: KOR 01 LG, server: ll0427hr.mtls.xyz, port: 30466, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: KOR 03 SEJONG, server: ll0427hr.mtls.xyz, port: 30626, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: USA 01, server: ll0427hr.mtls.xyz, port: 30014, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: USA 02, server: ll0427hr.mtls.xyz, port: 30016, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: USA 03, server: ll0427hr.mtls.xyz, port: 30158, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: USA 04, server: ll0427hr.mtls.xyz, port: 30449, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: USA 05, server: ll0427hr.mtls.xyz, port: 30151, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: USA 06, server: ll0427hr.mtls.xyz, port: 30715, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+  - {name: USA 07, server: ll0427hr.mtls.xyz, port: 30716, type: ss, cipher: aes-256-gcm, password: e827400f-3fcf-4207-a44f-63d3c92d5c92, udp: true, tfo: false}
+
 proxy-groups:
   - name: 🚀 节点选择
     type: select
